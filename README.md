@@ -1,7 +1,7 @@
 Momentálnu verziu ešte budem meniť ale zatiaľ vieme nahrávať súbory obrázkov a ukladajú sa do backend.
 spustiť:docker compose up --build
 
-Momentálne beží táto web aplikácia na: http://localhost:3001/
+Momentálne beží táto web aplikácia na: http://localhost:5174/
 
 Backend -Flask,Frontend-React
 
