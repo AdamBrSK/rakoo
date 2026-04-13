@@ -12,26 +12,43 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - backend_db_net
 
   backend:
     build: ./backend
     container_name: rakoo-backend
+    environment:
+      # Tu namiesto localhost používame názov služby "db"
+      - DATABASE_URL=postgresql://rakoo_user:rakoo_password@db:5432/rakoo_db
     ports:
       - "5001:5000"
     volumes:
       - ./backend:/app
+    depends_on:
+      - db
+    networks:
+      - frontend_backend_net
+      - backend_db_net
 
   frontend:
     build: ./frontend
     container_name: rakoo-frontend
     ports:
-      - "3001:3000"
-      - "5173:5173"
+      - "3001:5173"
     volumes:
       - ./frontend:/app
       - /app/node_modules
     depends_on:
       - backend
+    networks:
+      - frontend_backend_net
+
+networks:
+  frontend_backend_net:
+    driver: bridge
+  backend_db_net:
+    driver: bridge
 
 volumes:
   postgres_data:

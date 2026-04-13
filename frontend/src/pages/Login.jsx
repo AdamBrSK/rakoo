@@ -1,14 +1,53 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box, Flex, Stack, Heading, Text, Input, Button, 
-  InputGroup, InputLeftElement, InputRightElement, Link
+  InputGroup, InputLeftElement, InputRightElement, Link, useToast
 } from '@chakra-ui/react';
-import { FiMail, FiLock, FiEye } from 'react-icons/fi';
+import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import LeftPanel from '../components/LeftPanel';
 import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const toast = useToast();
+    
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleLogin = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch('http://localhost:5001/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem('token', data.access_token);
+                
+                toast({ title: "Prihlásenie úspešné", status: "success", duration: 2000 });
+                
+                navigate('/dashboard');
+            } else {
+                toast({ 
+                    title: "Chyba prihlásenia", 
+                    description: data.msg || "Nesprávne údaje", 
+                    status: "error" 
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            toast({ title: "Server neodpovedá", status: "error" });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
   return (
     <Flex minH="100vh" bg="gray.50">
       <LeftPanel />
@@ -23,27 +62,56 @@ export default function Login() {
 
             <Stack spacing={4}>
               <Box>
-                <Text fontSize="sm" fontWeight="bold" mb={2} color="gray.700">Email</Text>
+                <Text fontSize="sm" fontWeight="bold" mb={2} color="black">Email</Text>
                 <InputGroup>
                   <InputLeftElement children={<FiMail color="gray" />} />
-                  <Input placeholder="your.email@example.com" bg="gray.50" border="none" _focus={{ bg: 'white', border: '1px solid', borderColor: 'blue.400' }} />
+                  <Input 
+                    placeholder="your.email@example.com" 
+                    bg="gray.50" 
+                    border="none" 
+                    color="black"
+                    _placeholder={{ color: 'gray.500' }}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </InputGroup>
               </Box>
 
               <Box>
                 <Flex justify="space-between" mb={2}>
-                  <Text fontSize="sm" fontWeight="bold" color="gray.700">Password</Text>
+                  <Text fontSize="sm" fontWeight="bold" color="black">Password</Text>
                   <Link color="blue.500" fontSize="xs" fontWeight="bold">Forgot password?</Link>
                 </Flex>
                 <InputGroup>
                   <InputLeftElement children={<FiLock color="gray" />} />
-                  <Input type="password" placeholder="••••••••" bg="gray.50" border="none" />
-                  <InputRightElement children={<FiEye color="gray" />} />
+                  <Input 
+                    type={showPassword ? "text" : "password"} 
+                    placeholder="••••••••" 
+                    bg="gray.50" 
+                    border="none" 
+                    color="black"
+                    _placeholder={{ color: 'gray.500' }}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <InputRightElement width="3rem">
+                    <Button h="1.75rem" size="sm" variant="ghost" onClick={() => setShowPassword(!showPassword)}>
+                      {showPassword ? <FiEyeOff color="gray" /> : <FiEye color="gray" />}
+                    </Button>
+                  </InputRightElement>
                 </InputGroup>
               </Box>
             </Stack>
 
-            <Button size="lg" colorScheme="blue" w="full" rounded="xl" py={7}>
+            <Button 
+                onClick={handleLogin} 
+                isLoading={isLoading}
+                size="lg" 
+                colorScheme="blue" 
+                w="full" 
+                rounded="xl" 
+                py={7}
+            >
               Sign In
             </Button>
 
