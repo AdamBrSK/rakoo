@@ -1,4 +1,18 @@
 services:
+  db:
+    image: postgres:15
+    container_name: rakoo-db
+    restart: always
+    environment:
+      POSTGRES_USER: rakoo_user
+      POSTGRES_PASSWORD: rakoo_password
+      POSTGRES_DB: rakoo_db
+    ports:
+      - "5430:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/db.sql:/docker-entrypoint-initdb.d/init.sql
+
   backend:
     build: ./backend
     container_name: rakoo-backend
@@ -18,3 +32,6 @@ services:
       - /app/node_modules
     depends_on:
       - backend
+
+volumes:
+  postgres_data:
