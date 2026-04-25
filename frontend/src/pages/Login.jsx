@@ -30,19 +30,19 @@ export default function Login() {
             if (response.ok) {
                 localStorage.setItem('token', data.access_token);
                 
-                toast({ title: "Prihlásenie úspešné", status: "success", duration: 2000 });
+                toast({ title: "Successfully logged in", status: "success", duration: 2000 });
                 
                 navigate('/dashboard');
             } else {
                 toast({ 
-                    title: "Chyba prihlásenia", 
-                    description: data.msg || "Nesprávne údaje", 
+                    title: "Login error",
+                    description: data.msg || "Invalid data",
                     status: "error" 
                 });
             }
         } catch (error) {
             console.error(error);
-            toast({ title: "Server neodpovedá", status: "error" });
+            toast({ title: "Server doesnt respond", status: "error" });
         } finally {
             setIsLoading(false);
         }

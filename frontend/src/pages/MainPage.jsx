@@ -57,7 +57,7 @@ function RakooApp() {
             <Heading size="md" letterSpacing="tight">Rakoo</Heading>
           </Flex>
           <Button onClick={() => navigate("/login")} variant="outline" colorScheme="blue" rounded="full" px={6}>
-            Prihlásiť sa
+            Log in
           </Button>
         </Flex>
       </Container>

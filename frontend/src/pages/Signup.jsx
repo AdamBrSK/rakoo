@@ -39,14 +39,14 @@ export default function SignUp() {
             const data = await response.json();
 
             if (response.ok) {
-                toast({ title: "Účet vytvorený!", status: "success" });
+                toast({ title: "Account is created!", status: "success" });
                 navigate('/login');
             } else {
-                toast({ title: "Chyba", description: data.error || data.msg, status: "error" });
+                toast({ title: "Error", description: data.error || data.msg, status: "error" });
             }
         } catch (error) {
             console.error(error);
-            toast({ title: "Chyba spojenia", status: "error" });
+            toast({ title: "Connection Error", status: "error" });
         }
     };
 

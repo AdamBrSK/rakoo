@@ -4,14 +4,14 @@ services:
     container_name: rakoo-db
     restart: always
     environment:
-      POSTGRES_USER: rakoo_user
-      POSTGRES_PASSWORD: rakoo_password
-      POSTGRES_DB: rakoo_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5430:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/db.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./backend/db.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - backend_db_net
 
@@ -19,10 +19,14 @@ services:
     build: ./backend
     container_name: rakoo-backend
     environment:
-      # Tu namiesto localhost používame názov služby "db"
-      - DATABASE_URL=postgresql://rakoo_user:rakoo_password@db:5432/rakoo_db
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      FLASK_ENV: ${FLASK_ENV}
+      # For later when you add Azure
+      AZURE_ENDPOINT: ${AZURE_ENDPOINT}
+      AZURE_KEY: ${AZURE_KEY}
     ports:
-      - "5001:5000"
+      - "${BACKEND_PORT}:5000"
     volumes:
       - ./backend:/app
     depends_on:
@@ -35,7 +39,7 @@ services:
     build: ./frontend
     container_name: rakoo-frontend
     ports:
-      - "3001:5173"
+      - "${FRONTEND_PORT}:5173"
     volumes:
       - ./frontend:/app
       - /app/node_modules
