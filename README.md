@@ -46,6 +46,7 @@ AWS je využívané na výpočtovo náročnú časť – predikciu:
 
 ---
 
+
 ## ⚙️ Inštalácia (Lokálny vývoj)
 
 Všetky časti je možné spustiť naraz pomocou Docker Compose, čo simuluje cloudové prostredie:
@@ -66,3 +67,31 @@ Main kód ku Frontend je v súbore:frontend/src/App.jsx
 Dataset som zatiaľ vybrala ale dala len link, kedže je dosť veľký ten dataset,tak musíme sa rozhodnúť či použijeme celý.
 Potrebujeme si vybrať Cloud providera a publishnúť web,vybrať službu providera ,prepojiť na natrénovať na datasete,testovať a ďalej rozvíjať.
 Hl.funkcia bude rozpoznanie či je obrázok deepfake alebo real.
+
+# 🛡️ Rakoo – Multi-Cloud AI Deepfake Detector
+
+Projekt **Rakoo** je pokročilá webová platforma zameraná na detekciu deepfake obrázkov pomocou umelej inteligencie. Systém využíva modernú hybridnú cloudovú architektúru kombinujúcu **Microsoft Azure** a **Amazon Web Services (AWS)**.
+
+## 📊 Architektúra systému a Tok dát
+
+Tento diagram znázorňuje, ako aplikácia komunikuje medzi jednotlivými komponentmi a cloudmi:
+
+```mermaid
+graph TD
+    User((Používateľ)) -->|Nahrá obrázok| React[Frontend: React + Vite]
+    React -->|POST Request + JWT| Flask[Backend: Flask API]
+    Flask -->|Overenie usera| DB[(Azure PostgreSQL)]
+    Flask -->|Inference Call| AWS[AI Engine: AWS Lambda]
+    AWS -->|Deepfake/Real Result| Flask
+    Flask -->|JSON Response| React
+    React -->|Zobrazenie výsledku| User
+
+    subgraph "Microsoft Azure"
+    React
+    Flask
+    DB
+    end
+
+    subgraph "Amazon Web Services"
+    AWS
+    end
