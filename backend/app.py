@@ -10,7 +10,6 @@ app = Flask(__name__)
 CORS(app)
 
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'rakoo_default_secret')
-AI_MODEL_URL = os.environ.get('AI_MODEL_URL', 'http://localhost:8000')
 jwt = JWTManager(app)
 bcrypt = Bcrypt(app)
 
@@ -51,19 +50,21 @@ def home():
 
 
 @app.route('/api/analyze', methods=['POST'])
+@jwt_required()
 def analyze_image():
-    """Posiela obrázok do samostatného AI kontajnera na analýzu"""
+    current_user_id = get_jwt_identity()
     if 'image' not in request.files:
         return jsonify({'error': 'No image uploaded'}), 400
 
     file = request.files['image']
+    file.seek(0)
     if file.filename == '':
         return jsonify({'error': 'No file selected'}), 400
 
     try:
         files = {'file': (file.filename, file.read(), file.content_type)}
         
-        response = requests.post(AI_MODEL_URL, files=files, timeout=30)
+        response = requests.post("https://rayjxy3mt2m3acfoahtxywu56i0hxoda.lambda-url.eu-north-1.on.aws/predict", files=files, timeout=120)
         
         if response.status_code == 200:
             result = response.json()

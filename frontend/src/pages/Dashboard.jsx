@@ -5,6 +5,7 @@ import {
   VStack
 } from '@chakra-ui/react';
 import { FiCamera, FiUploadCloud, FiTarget, FiZap, FiShield, FiAlertTriangle, FiCheckCircle } from 'react-icons/fi';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 const StatCard = ({ icon, label, value, bg, color }) => (
     <Flex align="center" gap={4} p={6} bg={bg} rounded="2xl" border="1px solid" borderColor="blackAlpha.100" shadow="lg" minW="220px">
@@ -21,9 +22,10 @@ const StatCard = ({ icon, label, value, bg, color }) => (
 export default function Dashboard() {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [analysisResult, setAnalysisResult] = useState(null);  // ← MOVED INSIDE component
-  const [isAnalyzing, setIsAnalyzing] = useState(false);      // ← MOVED INSIDE component
+  const [analysisResult, setAnalysisResult] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);    
   const fileInputRef = useRef(null);
+  const navigate = useNavigate()
 
   const onButtonClick = () => {
     fileInputRef.current.click();
@@ -38,6 +40,11 @@ export default function Dashboard() {
     }
   };
 
+  const signOut = () => {
+    localStorage.clear()
+    navigate("/login")
+  }
+
   // ← MOVED INSIDE component so it can access selectedFile
   const analyzeImage = async () => {
     if (!selectedFile) {
@@ -50,10 +57,16 @@ export default function Dashboard() {
     formData.append('image', selectedFile);
 
     try {
-      const response = await fetch('http://localhost:5001/api/analyze', {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/analyze', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         method: 'POST',
         body: formData
       });
+
+      console.log(response)
 
       const result = await response.json();
       setAnalysisResult(result);
@@ -86,7 +99,7 @@ export default function Dashboard() {
               <MenuList border="none" shadow="lg" rounded="xl">
                 <MenuItem>Profile Settings</MenuItem>
                 <MenuItem>Usage History</MenuItem>
-                <MenuItem color="red.500">Sign Out</MenuItem>
+                <MenuItem color="red.500" onClick={signOut}>Sign Out</MenuItem>
               </MenuList>
             </Menu>
           </Flex>
@@ -197,10 +210,6 @@ export default function Dashboard() {
 
                       <Text fontSize="2xl" fontWeight="bold" mb={4}>
                         Confidence: {(analysisResult.confidence * 100).toFixed(1)}%
-                      </Text>
-
-                      <Text fontSize="sm" color="gray.600">
-                        {analysisResult.message || "Analysis complete"}
                       </Text>
 
                       {/* Show filename that was analyzed */}

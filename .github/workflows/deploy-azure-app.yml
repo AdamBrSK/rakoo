@@ -16,7 +16,7 @@ jobs:
 
       - name: Azure Container Registry Login
         run: |
-          az acr login --name mojerepoacr # Tu daj názov tvojho ACR
+          az acr login --name mojerepoacr
 
       - name: Build and Push Docker Image
         run: |

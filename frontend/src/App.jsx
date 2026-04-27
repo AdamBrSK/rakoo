@@ -1,7 +1,7 @@
 import { extendTheme } from "@chakra-ui/react";
 import RakooApp from "./pages/MainPage";
 import { ChakraProvider } from "@chakra-ui/react";
-import {Routes, BrowserRouter, Route} from 'react-router-dom'
+import {Routes, BrowserRouter, Route, Navigate} from 'react-router-dom'
 import Login from "./pages/Login";
 import SignUp from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
@@ -21,6 +21,11 @@ const theme = extendTheme({
   },
 });
 
+const PrivateRoute = ({ children }) => {
+  const isAuthenticated = !!localStorage.getItem('token');
+  return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
 export default function App() {
   return (
     <ChakraProvider theme={theme}>
@@ -29,7 +34,14 @@ export default function App() {
           <Route path="/" element={<RakooApp />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route 
+            path="/dashboard" 
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            } 
+          />
         </Routes>
       </BrowserRouter>
     </ChakraProvider>
