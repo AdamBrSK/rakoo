@@ -50,9 +50,7 @@ def home():
 
 
 @app.route('/api/analyze', methods=['POST'])
-@jwt_required()
 def analyze_image():
-    current_user_id = get_jwt_identity()
     if 'image' not in request.files:
         return jsonify({'error': 'No image uploaded'}), 400
 
