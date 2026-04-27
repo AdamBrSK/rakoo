@@ -1,0 +1,30 @@
+name: Deploy Web App to Azure
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout kódu
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure Container Registry Login
+        run: |
+          az acr login --name mojerepoacr # Tu daj názov tvojho ACR
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t mojerepoacr.azurecr.io/web-app:latest ./web-app
+          docker push mojerepoacr.azurecr.io/web-app:latest
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'moja-skolska-appka'
+          images: 'mojerepoacr.azurecr.io/web-app:latest'

@@ -1,7 +1,12 @@
 flask
 flask-cors
+werkzeug
 flask-bcrypt
 flask-jwt-extended
 psycopg2-binary
 requests
-werkzeug
+transformers
+torch
+torchvision
+pillow
+tensorflow

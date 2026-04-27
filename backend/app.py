@@ -1,15 +1,16 @@
 import os
+import requests
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import psycopg2
-from deepfake_detector import check_if_deepfake
 
 app = Flask(__name__)
 CORS(app)
 
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'rakoo_default_secret')
+AI_MODEL_URL = os.environ.get('AI_MODEL_URL', 'http://localhost:8000')
 jwt = JWTManager(app)
 bcrypt = Bcrypt(app)
 
@@ -51,43 +52,28 @@ def home():
 
 @app.route('/api/analyze', methods=['POST'])
 def analyze_image():
-    """Check if uploaded image is deepfake"""
+    """Posiela obrázok do samostatného AI kontajnera na analýzu"""
     if 'image' not in request.files:
         return jsonify({'error': 'No image uploaded'}), 400
 
     file = request.files['image']
-
     if file.filename == '':
         return jsonify({'error': 'No file selected'}), 400
 
+    try:
+        files = {'file': (file.filename, file.read(), file.content_type)}
+        
+        response = requests.post(AI_MODEL_URL, files=files, timeout=30)
+        
+        if response.status_code == 200:
+            result = response.json()
+            result['filename'] = file.filename
+            return jsonify(result)
+        else:
+            return jsonify({"error": "AI service error", "details": response.text}), 502
 
-    image_bytes = file.read()
-
-
-    result = check_if_deepfake(image_bytes)
-    result['filename'] = file.filename
-
-    return jsonify(result)
-
-
-@app.route('/upload', methods=['POST'])
-def upload_image():
-    if 'image' not in request.files:
-        return jsonify({'error': 'No image uploaded'}), 400
-
-    file = request.files['image']
-
-    if file.filename == '':
-        return jsonify({'error': 'Empty filename'}), 400
-
-    filename = secure_filename(file.filename)
-    save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(save_path)
-
-    return jsonify({
-        'message': 'Upload successful',
-        'image_url': f'http://localhost:{os.environ.get("BACKEND_PORT", "5001")}/static/uploads/{filename}'
-    })
+    except Exception as e:
+        return jsonify({"error": "Could not connect to AI service", "message": str(e)}), 503
 
 
 @app.route('/register', methods=['POST'])
