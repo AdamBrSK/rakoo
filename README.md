@@ -6,11 +6,11 @@ Projekt Rakoo je pokročilá webová platforma na analýzu dát pomocou umelej i
 
 Aplikácia je distribuovaná medzi dvoch najväčších poskytovateľov cloudu, aby sa využili silné stránky každej platformy:
 
-### ☁️ Microsoft Azure (Aplikačná vrstva)
+### ☁️ Deploi.me (Aplikačná vrstva)
 V prostredí Azure beží jadro aplikácie a používateľské dáta:
-* **Frontend:** React.js aplikácia nasadená v rámci **Azure App Service** (Docker container).
-* **Backend:** Flask (Python) API bežiace v **Azure App Service for Containers**, ktoré riadi biznis logiku a autentifikáciu.
-* **Databáza:** **Azure Database for PostgreSQL (Flexible Server)** – spravovaná SQL databáza pre bezpečné ukladanie používateľských profilov a hashovaných hesiel.
+* **Frontend:** React.js aplikácia nasadená v rámci **App Service** (Docker container).
+* **Backend:** Flask (Python) API bežiace v **App Service for Containers**, ktoré riadi biznis logiku a autentifikáciu.
+* **Databáza:** **PostgreSQL (Flexible Server)** – spravovaná SQL databáza pre bezpečné ukladanie používateľských profilov a hashovaných hesiel.
 
 ### ☁️ Amazon Web Services - AWS (AI vrstva)
 AWS je využívané na výpočtovo náročnú časť – predikciu:
@@ -31,7 +31,7 @@ AWS je využívané na výpočtovo náročnú časť – predikciu:
 - **Komunikácia:** Využíva asynchrónne volania na Azure API, ktoré následne preposiela dáta do AWS.
 
 ### 🟣 Databáza (PostgreSQL)
-- **Schéma:** Obsahuje tabuľky pre `users` (id, email, password_hash, created_at) a logy analýz.
+- **Schéma:** Obsahuje tabuľky pre `users` (id, email, password_hash, created_at).
 
 ---
 
@@ -68,4 +68,19 @@ Dataset som zatiaľ vybrala ale dala len link, kedže je dosť veľký ten datas
 Potrebujeme si vybrať Cloud providera a publishnúť web,vybrať službu providera ,prepojiť na natrénovať na datasete,testovať a ďalej rozvíjať.
 Hl.funkcia bude rozpoznanie či je obrázok deepfake alebo real.
 
-
+## 📡 Sieťová komunikácia a Tok dát (Data Flow)
+```text
+Frontend (React)
+   ↓
+Backend (Flask)
+   ↓
+PostgreSQL (Auth)
+   ↓
+AWS Lambda (AI Model)
+   ↓
+Backend
+   ↓
+Frontend
+   ↓
+Výsledok používateľovi
+```
